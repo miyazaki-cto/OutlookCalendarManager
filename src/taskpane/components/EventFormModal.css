@@ -1,0 +1,225 @@
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1001;
+}
+
+/* Modal Container */
+.modal-container {
+  background-color: white;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* Modal Header */
+.modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 1;
+}
+
+.modal-title {
+  font-size: 20px;
+  margin: 0;
+}
+
+.close-button {
+  background-color: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0 8px;
+}
+
+/* Form Body */
+.form-body {
+  padding: 20px;
+}
+
+.form-field {
+  margin-bottom: 20px;
+}
+
+.label-text {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.required-star {
+  color: red;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.datetime-input-container {
+  display: flex;
+}
+
+.date-input {
+  -ms-flex: 2;
+  flex: 2;
+  margin-right: 10px;
+}
+
+.time-select {
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.textarea-field {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  box-sizing: border-box;
+  font-family: inherit;
+  resize: vertical;
+}
+
+/* Attendee Buttons */
+.group-buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.group-button-wrapper {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.btn-add-group {
+  padding: 2px 6px;
+  font-size: 11px;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.btn-remove-group {
+  padding: 2px 6px;
+  font-size: 11px;
+  background-color: #605e5c;
+  color: white;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+/* Selection Lists */
+.selection-list-container {
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  padding: 12px;
+  max-height: 150px;
+  overflow-y: auto;
+  background-color: #fafafa;
+}
+
+.selection-list-container.rooms {
+  max-height: none;
+}
+
+.empty-message {
+  margin: 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.checkbox-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 13px;
+  min-width: 140px;
+}
+
+.checkbox-label.room {
+  min-width: 120px;
+}
+
+.checkbox-input {
+  margin-right: 6px;
+}
+
+/* Footer */
+.modal-footer {
+  padding: 15px 20px;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+}
+
+.btn-cancel {
+  padding: 10px 20px;
+  font-size: 14px;
+  background-color: #f3f2f1;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+}
+
+.btn-cancel:not(:disabled) {
+  cursor: pointer;
+}
+
+.btn-cancel:disabled {
+  cursor: not-allowed;
+}
+
+.btn-save {
+  padding: 10px 20px;
+  font-size: 14px;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+
+.btn-save:not(:disabled) {
+  cursor: pointer;
+}
+
+.btn-save:disabled {
+  cursor: not-allowed;
+}
