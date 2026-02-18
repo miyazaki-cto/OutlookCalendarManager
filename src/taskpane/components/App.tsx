@@ -8,6 +8,7 @@ import { MemberDayTimelineView } from "./MemberDayTimelineView";
 import { getUserColor, clearUserColors } from '../../utils/userColors';
 import { EventFormModal } from "./EventFormModal";
 import { SettingsModal } from "./SettingsModal";
+import { ListView } from "./ListView";
 import "./App.css";
 
 export interface AppProps {
@@ -37,6 +38,20 @@ const App: React.FC<AppProps> = ({ title }) => {
     const saved = localStorage.getItem('calendar_selectedMembers');
     return saved ? JSON.parse(saved) : {};
   });
+
+  // フィルターの一時的な選択状態
+  const [tempSelectedGroups, setTempSelectedGroups] = React.useState<SelectedGroups>(selectedGroups);
+  const [tempSelectedMembers, setTempSelectedMembers] = React.useState<SelectedMembers>(selectedMembers);
+
+  // 選択内容に変更があるかチェック
+  const hasChanges = React.useMemo(() => {
+    const memberEmails = Object.keys({ ...selectedMembers, ...tempSelectedMembers });
+    const memberChanged = memberEmails.some(email => !!selectedMembers[email] !== !!tempSelectedMembers[email]);
+    if (memberChanged) return true;
+
+    const groupIds = Object.keys({ ...selectedGroups, ...tempSelectedGroups });
+    return groupIds.some(id => !!selectedGroups[id] !== !!tempSelectedGroups[id]);
+  }, [selectedMembers, tempSelectedMembers, selectedGroups, tempSelectedGroups]);
 
   const [selectedEvent, setSelectedEvent] = React.useState<CalendarEvent | null>(null);
   const [confirmingDelete, setConfirmingDelete] = React.useState(false);
@@ -173,35 +188,43 @@ const App: React.FC<AppProps> = ({ title }) => {
   };
 
   const handleGroupToggle = (groupId: string) => {
-    const newSelectedGroups = { ...selectedGroups };
+    const newTempSelectedGroups = { ...tempSelectedGroups };
     const group = groupConfig.find(g => g.id === groupId);
     if (!group) return;
 
-    if (newSelectedGroups[groupId]) {
-      delete newSelectedGroups[groupId];
-      const newSelectedMembers = { ...selectedMembers };
-      group.members.forEach(member => delete newSelectedMembers[member.email]);
-      setSelectedMembers(newSelectedMembers);
-      loadEvents(Object.keys(newSelectedMembers).length > 0 ? Object.keys(newSelectedMembers) : [currentUserEmail]);
+    if (newTempSelectedGroups[groupId]) {
+      delete newTempSelectedGroups[groupId];
+      const newTempSelectedMembers = { ...tempSelectedMembers };
+      group.members.forEach(member => {
+        // 自分自身（currentUserEmail）は解除しない
+        if (member.email !== currentUserEmail) {
+          delete newTempSelectedMembers[member.email];
+        }
+      });
+      setTempSelectedMembers(newTempSelectedMembers);
     } else {
-      newSelectedGroups[groupId] = true;
-      const newSelectedMembers = { ...selectedMembers };
-      group.members.forEach(member => newSelectedMembers[member.email] = true);
-      setSelectedMembers(newSelectedMembers);
-      loadEvents(Object.keys(newSelectedMembers));
+      newTempSelectedGroups[groupId] = true;
+      const newTempSelectedMembers = { ...tempSelectedMembers };
+      group.members.forEach(member => newTempSelectedMembers[member.email] = true);
+      setTempSelectedMembers(newTempSelectedMembers);
     }
-    setSelectedGroups(newSelectedGroups);
+    setTempSelectedGroups(newTempSelectedGroups);
   };
 
   const handleMemberToggle = (email: string) => {
-    const newSelectedMembers = { ...selectedMembers };
-    if (newSelectedMembers[email]) {
-      delete newSelectedMembers[email];
+    const newTempSelectedMembers = { ...tempSelectedMembers };
+    if (newTempSelectedMembers[email]) {
+      delete newTempSelectedMembers[email];
     } else {
-      newSelectedMembers[email] = true;
+      newTempSelectedMembers[email] = true;
     }
-    setSelectedMembers(newSelectedMembers);
-    loadEvents(Object.keys(newSelectedMembers).length > 0 ? Object.keys(newSelectedMembers) : [currentUserEmail]);
+    setTempSelectedMembers(newTempSelectedMembers);
+  };
+
+  const handleApplyFilter = () => {
+    setSelectedGroups(tempSelectedGroups);
+    setSelectedMembers(tempSelectedMembers);
+    loadEvents(Object.keys(tempSelectedMembers).length > 0 ? Object.keys(tempSelectedMembers) : [currentUserEmail]);
   };
 
   const getAvailableMembers = (): Member[] => {
@@ -320,58 +343,57 @@ const App: React.FC<AppProps> = ({ title }) => {
       
       {/* フィルターセクション */}
       <div className="filter-container">
-        {/* グループフィルター */}
-        <div className={`filter-block ${isGroupExpanded ? 'expanded' : 'collapsed'}`}>
-          <div className="filter-block-header" onClick={() => setIsGroupExpanded(!isGroupExpanded)}>
-            <span className="filter-title">グループ選択</span>
-            <span className="expand-icon">{isGroupExpanded ? '▼' : '▶'}</span>
-          </div>
-          {isGroupExpanded && (
-            <div className="filter-block-body">
-              <div className="checkbox-wrap-container">
-                {groupConfig.map(group => (
-                  <label key={group.id} className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={!!selectedGroups[group.id]}
-                      onChange={() => handleGroupToggle(group.id)}
-                    />
-                    {group.name}
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* メンバーフィルター */}
         <div className={`filter-block ${isMemberExpanded ? 'expanded' : 'collapsed'}`}>
           <div className="filter-block-header" onClick={() => setIsMemberExpanded(!isMemberExpanded)}>
-            <span className="filter-title">メンバー選択</span>
-            <span className="expand-icon">{isMemberExpanded ? '▼' : '▶'}</span>
+            <div className="filter-header-content">
+              <span className="expand-icon">{isMemberExpanded ? '▼' : '▶'}</span>
+              <span className="filter-title">
+                メンバー・会議室選択 ({Object.values(tempSelectedMembers).filter(v => v).length})
+              </span>
+            </div>
           </div>
           {isMemberExpanded && (
             <div className="filter-block-body">
-              <div className="checkbox-wrap-container">
-                {getAvailableMembers().map(member => (
-                  <label key={member.email} className="checkbox-label">
-                    <input
-                      type="checkbox"
-                      checked={!!selectedMembers[member.email]}
-                      onChange={() => handleMemberToggle(member.email)}
-                    />
-                    {member.name}
-                  </label>
+              <div className="filter-merged-container">
+                {groupConfig.filter(g => g.id !== 'all').map(group => (
+                  <div key={group.id} className="filter-group-row">
+                    <div className="filter-group-name-cell">
+                      <label className="checkbox-label group-label">
+                        <input
+                          type="checkbox"
+                          checked={!!tempSelectedGroups[group.id]}
+                          onChange={() => handleGroupToggle(group.id)}
+                        />
+                        {group.name}
+                      </label>
+                    </div>
+                    <div className="filter-group-divider">|</div>
+                    <div className="filter-members-cell">
+                      {group.members.map(member => (
+                        <label key={member.email} className="checkbox-label member-label">
+                          <input
+                            type="checkbox"
+                            checked={!!tempSelectedMembers[member.email]}
+                            onChange={() => handleMemberToggle(member.email)}
+                          />
+                          {member.name}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
-              <div className="filter-actions">
+              <div className="filter-actions-row">
                 <button
                   onClick={() => {
                     const allMembers = getAvailableMembers();
-                    const newSelectedMembers = {};
-                    allMembers.forEach(m => newSelectedMembers[m.email] = true);
-                    setSelectedMembers(newSelectedMembers);
-                    loadEvents(Object.keys(newSelectedMembers));
+                    const newTempSelectedMembers = {};
+                    allMembers.forEach(m => newTempSelectedMembers[m.email] = true);
+                    setTempSelectedMembers(newTempSelectedMembers);
+                    
+                    const newTempSelectedGroups = {};
+                    groupConfig.forEach(g => newTempSelectedGroups[g.id] = true);
+                    setTempSelectedGroups(newTempSelectedGroups);
                   }}
                   className="btn-small"
                 >
@@ -379,13 +401,20 @@ const App: React.FC<AppProps> = ({ title }) => {
                 </button>
                 <button
                   onClick={() => {
-                    setSelectedGroups({});
-                    setSelectedMembers({ [currentUserEmail]: true });
-                    loadEvents([currentUserEmail]);
+                    setTempSelectedGroups({});
+                    setTempSelectedMembers({ [currentUserEmail]: true });
                   }}
                   className="btn-small"
                 >
                   クリア
+                </button>
+                <button
+                  onClick={handleApplyFilter}
+                  disabled={!hasChanges}
+                  className={`btn-save ${hasChanges ? 'blink-animation' : 'btn-disabled'}`}
+                  style={{ padding: '6px 20px', fontSize: '14px' }}
+                >
+                  適用
                 </button>
               </div>
             </div>
@@ -395,7 +424,12 @@ const App: React.FC<AppProps> = ({ title }) => {
 
 
       <div className="main-content-container">
-        {loading && <div className="loading-overlay">{loadingMessage}</div>}
+        {loading && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+            <div className="loading-text">{loadingMessage}</div>
+          </div>
+        )}
         {viewMode === 'calendar' ? (
           <CalendarView events={events} onSelectEvent={handleSelectEvent} onSelectSlot={handleSelectSlot} currentUserEmail={currentUserEmail} />
         ) : viewMode === 'timeline' ? (
@@ -403,17 +437,12 @@ const App: React.FC<AppProps> = ({ title }) => {
         ) : viewMode === 'day-timeline' ? (
           <MemberDayTimelineView events={events} members={getAvailableMembers().filter(m => selectedMembers[m.email])} onSelectSlot={handleSelectSlot} onSelectEvent={handleSelectEvent} currentUserEmail={currentUserEmail} />
         ) : (
-          <div className="list-view">
-            <h3>今日の予定 ({new Date().toLocaleDateString('ja-JP')})</h3>
-            {events.filter(e => new Date(e.start.dateTime).toDateString() === new Date().toDateString()).length === 0 ? <p>予定はありません</p> : 
-              events.filter(e => new Date(e.start.dateTime).toDateString() === new Date().toDateString()).map(e => (
-                <div key={e.id} className="event-item" style={{ borderLeft: `5px solid ${getEventColor(e)}` }} onClick={() => handleSelectEvent(e)}>
-                  <strong>{e.subject}</strong>
-                  <p>{new Date(e.start.dateTime).toLocaleTimeString('ja-JP')} - {new Date(e.end.dateTime).toLocaleTimeString('ja-JP')}</p>
-                </div>
-              ))
-            }
-          </div>
+          <ListView 
+            events={events} 
+            members={getAvailableMembers()} 
+            onSelectEvent={handleSelectEvent} 
+            getEventColor={getEventColor}
+          />
         )}
       </div>
 

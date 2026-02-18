@@ -240,6 +240,16 @@ React.useEffect(() => {
     );
   };
 
+    const formats = {
+      timeGutterFormat: (date: Date, culture: string, localizer: any) =>
+        localizer.format(date, 'HH:mm', culture),
+      eventTimeRangeFormat: ({ start, end }: any, culture: string, localizer: any) =>
+        `${localizer.format(start, 'HH:mm', culture)} - ${localizer.format(end, 'HH:mm', culture)}`,
+      agendaTimeFormat: 'HH:mm',
+      agendaTimeRangeFormat: ({ start, end }: any, culture: string, localizer: any) =>
+        `${localizer.format(start, 'HH:mm', culture)} - ${localizer.format(end, 'HH:mm', culture)}`,
+    };
+
   return (
     <div style={{ height: '600px' }} ref={calendarRef}>
     <Calendar
@@ -251,6 +261,7 @@ React.useEffect(() => {
     onView={setView}
     date={date}
     onNavigate={setDate}
+    formats={formats}
     style={{ height: '100%' }}
     eventPropGetter={eventStyleGetter}
     onSelectEvent={(event) => {

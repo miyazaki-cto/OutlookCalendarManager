@@ -199,7 +199,9 @@ export const MemberDayTimelineView: React.FC<MemberDayTimelineViewProps> = ({
                                   }}
                                   title={`${eStart.getHours()}:${eStart.getMinutes().toString().padStart(2, '0')} - ${eEnd.getHours()}:${eEnd.getMinutes().toString().padStart(2, '0')} ${event.subject}`}
                                 >
-                                  {eStart.getHours() === hour && <span className="event-subject-mini">{event.subject}</span>}
+                                  {((eStart.getHours() === hour && eStart.toDateString() === currentDate.toDateString()) || (hour === 8 && eStart < hourStart)) && (
+                                    <span className="event-subject-mini">{event.subject}</span>
+                                  )}
                                 </div>
                               );
                             })}
