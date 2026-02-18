@@ -28,8 +28,14 @@ const App: React.FC<AppProps> = ({ title }) => {
   const [eventToEdit, setEventToEdit] = React.useState<CalendarEvent | null>(null);
   const [eventFormInitialAttendees, setEventFormInitialAttendees] = React.useState<string[]>([]);
 
-  const [selectedGroups, setSelectedGroups] = React.useState<SelectedGroups>({});
-  const [selectedMembers, setSelectedMembers] = React.useState<SelectedMembers>({});
+  const [selectedGroups, setSelectedGroups] = React.useState<SelectedGroups>(() => {
+    const saved = localStorage.getItem('calendar_selectedGroups');
+    return saved ? JSON.parse(saved) : {};
+  });
+  const [selectedMembers, setSelectedMembers] = React.useState<SelectedMembers>(() => {
+    const saved = localStorage.getItem('calendar_selectedMembers');
+    return saved ? JSON.parse(saved) : {};
+  });
 
   const [selectedEvent, setSelectedEvent] = React.useState<CalendarEvent | null>(null);
   const [confirmingDelete, setConfirmingDelete] = React.useState(false);
@@ -49,10 +55,31 @@ const App: React.FC<AppProps> = ({ title }) => {
   });
 
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
-  const [isGroupExpanded, setIsGroupExpanded] = React.useState<boolean>(true);
+  const [isGroupExpanded, setIsGroupExpanded] = React.useState<boolean>(() => {
+    const saved = localStorage.getItem('calendar_isGroupExpanded');
+    return saved !== null ? saved === 'true' : true;
+  });
   const [isMemberExpanded, setIsMemberExpanded] = React.useState<boolean>(() => {
+    const saved = localStorage.getItem('calendar_isMemberExpanded');
+    if (saved !== null) return saved === 'true';
     return window.innerWidth > 600;
   });
+
+  React.useEffect(() => {
+    localStorage.setItem('calendar_selectedGroups', JSON.stringify(selectedGroups));
+  }, [selectedGroups]);
+
+  React.useEffect(() => {
+    localStorage.setItem('calendar_selectedMembers', JSON.stringify(selectedMembers));
+  }, [selectedMembers]);
+
+  React.useEffect(() => {
+    localStorage.setItem('calendar_isGroupExpanded', String(isGroupExpanded));
+  }, [isGroupExpanded]);
+
+  React.useEffect(() => {
+    localStorage.setItem('calendar_isMemberExpanded', String(isMemberExpanded));
+  }, [isMemberExpanded]);
 
   React.useEffect(() => {
     graphService.initialize();
@@ -88,8 +115,15 @@ const App: React.FC<AppProps> = ({ title }) => {
       const email = await graphService.getCurrentUserEmail();
       setCurrentUserEmail(email);
       setIsLoggedIn(true);
-      setSelectedMembers({ [email]: true });
-      await loadEvents([email]);
+      
+      // 保存された選択がない場合のみ、ログインユーザーをデフォルト選択にする
+      if (Object.keys(selectedMembers).length === 0) {
+        const initialMembers = { [email]: true };
+        setSelectedMembers(initialMembers);
+        await loadEvents([email]);
+      } else {
+        await loadEvents(Object.keys(selectedMembers));
+      }
     } catch (error) {
       console.error('Failed to login:', error);
       alert('ログインに失敗しました');
