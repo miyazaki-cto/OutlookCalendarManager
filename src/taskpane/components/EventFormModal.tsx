@@ -108,8 +108,11 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
   const [location, setLocation] = React.useState(event?.location?.displayName || "");
   const [body, setBody] = React.useState(() => {
     if (!event?.body?.content) return '';
-    // HTMLタグを除去し、前後の空白・改行をトリム
-    return event.body.content.replace(/<[^>]*>/g, '').trim();
+    // HTMLタグと実体参照（&nbsp;等）を除去し、前後の空白・改行をトリム
+    return event.body.content
+      .replace(/<[^>]*>/g, '')
+      .replace(/&nbsp;|&#160;|&amp;nbsp;/g, ' ')
+      .trim();
   });
   const [saving, setSaving] = React.useState(false);
 
@@ -153,6 +156,11 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
       });
       return next;
     });
+  };
+
+  // 全解除
+  const handleClearAll = () => {
+    setSelectedAttendees({});
   };
 
   const handleRoomToggle = (email: string) => {
@@ -283,6 +291,9 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
   const [startDatePart, startTimePart] = startDate.split("T");
   const [endDatePart, endTimePart] = endDate.split("T");
 
+  const selectedAttendeeCount = Object.values(selectedAttendees).filter(v => !!v).length;
+  const isAttendeeRequiredMissing = selectedAttendeeCount === 0;
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
@@ -379,7 +390,7 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
             {/* 参加者 */}
             <div className="form-field">
               <label className="label-text">
-                👥 参加者
+                👥 参加者 <span className="required-star">*</span>
               </label>
               {/* グループ一括追加・削除ボタン */}
               <div className="group-buttons-container">
@@ -401,6 +412,13 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
                     </button>
                   </span>
                 ))}
+                <button
+                  type="button"
+                  onClick={handleClearAll}
+                  className="btn-clear-all"
+                >
+                  全解除
+                </button>
               </div>
               <div className="selection-list-container">
                 {allMembers.length === 0 ? (
@@ -490,8 +508,8 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
             </button>
             <button
               type="submit"
-              disabled={saving}
-              className="btn-save"
+              disabled={saving || isAttendeeRequiredMissing}
+              className={`btn-save ${isAttendeeRequiredMissing ? 'btn-disabled' : ''}`}
             >
               {saving ? "保存中..." : "保存"}
             </button>

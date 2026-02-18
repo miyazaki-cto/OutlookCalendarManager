@@ -241,7 +241,20 @@ const App: React.FC<AppProps> = ({ title }) => {
     return getUserColor(event.ownerEmail, event.ownerEmail === currentUserEmail, member?.type === 'resource');
   };
 
-  const handleSelectEvent = (event: CalendarEvent) => setSelectedEvent(event);
+  const handleSelectEvent = async (event: CalendarEvent) => {
+    try {
+      setLoading(true);
+      setLoadingMessage('詳細を取得中...');
+      const fullEvent = await graphService.getEventDetails(event.id, event.ownerEmail);
+      setSelectedEvent({ ...fullEvent, ownerEmail: event.ownerEmail });
+    } catch (error) {
+      console.error('Failed to fetch event details:', error);
+      // フォールバック：取得済みの情報で表示
+      setSelectedEvent(event);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSelectSlot = (slotInfo: { start: Date; end: Date; memberEmail?: string }) => {
     setEventFormMode('create');
@@ -456,9 +469,19 @@ const App: React.FC<AppProps> = ({ title }) => {
             <div className="form-body">
               <p>開始: {new Date(selectedEvent.start.dateTime).toLocaleString('ja-JP')}</p>
               <p>終了: {new Date(selectedEvent.end.dateTime).toLocaleString('ja-JP')}</p>
-              {selectedEvent.body?.content && (
-                <div className="event-body-content" dangerouslySetInnerHTML={{ __html: selectedEvent.body.content }} />
-              )}
+              {(() => {
+                if (!selectedEvent.body?.content) return null;
+                // タグと実体参照を除去してテキスト内容をチェック
+                const plainText = selectedEvent.body.content
+                  .replace(/<[^>]*>/g, '')
+                  .replace(/&nbsp;|&#160;|&amp;nbsp;/g, '')
+                  .trim();
+                if (!plainText) return null;
+
+                return (
+                  <div className="event-body-content" dangerouslySetInnerHTML={{ __html: selectedEvent.body.content }} />
+                );
+              })()}
             </div>
             <div className="modal-footer">
               {selectedEvent.ownerEmail === currentUserEmail && (

@@ -103,6 +103,7 @@
   margin: 0;
   font-weight: bold;
   white-space: nowrap;
+  -ms-flex: 0 0 auto;
   flex: 0 0 auto;
 }
 
@@ -110,17 +111,25 @@
   display: flex;
   -ms-flex-pack: center;
   justify-content: center;
-  flex: 1;
   -ms-flex: 1;
+  flex: 1;
 }
 
 .header-actions {
   display: flex;
-  gap: 4px;
   -ms-flex-align: center;
   align-items: center;
-  flex: 0 0 auto;
   -ms-flex: 0 0 auto;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.header-actions > * {
+  margin-right: 4px;
+}
+
+.header-actions > *:last-child {
+  margin-right: 0;
 }
 
 /* New Standardized UI Classes */
@@ -131,7 +140,9 @@
   font-size: 12px;
   border: 1px solid #d1d1d1;
   display: flex;
+  -ms-flex-align: center;
   align-items: center;
+  -ms-flex-pack: center;
   justify-content: center;
 }
 
@@ -158,13 +169,21 @@
   gap: 2px;
 }
 
+.view-mode-buttons > * {
+  margin-right: 2px;
+}
+
+.view-mode-buttons > *:last-child {
+  margin-right: 0;
+}
+
 .view-mode-buttons button {
   margin-right: 2px; /* IE11 gap fallback */
 }
 
 .main-content-container {
-  flex: 1;
   -ms-flex: 1;
+  flex: 1;
   position: relative;
 }
 
@@ -186,8 +205,8 @@
   top: 0; left: 0; right: 0; bottom: 0;
   background-color: rgba(255, 255, 255, 0.8);
   display: flex;
-  flex-direction: column;
   -ms-flex-direction: column;
+  flex-direction: column;
   -ms-flex-pack: start;
   justify-content: flex-start;
   -ms-flex-align: center;
@@ -197,14 +216,22 @@
   gap: 15px;
 }
 
+.loading-overlay > * {
+  margin-bottom: 15px;
+}
+
+.loading-overlay > *:last-child {
+  margin-bottom: 0;
+}
+
 .spinner {
   width: 40px;
   height: 40px;
   border: 4px solid #f3f3f3;
   border-top: 4px solid #0078d4;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
   -webkit-animation: spin 1s linear infinite;
+  animation: spin 1s linear infinite;
 }
 
 .loading-text {
@@ -272,8 +299,8 @@
   -ms-flex-align: center;
   align-items: center;
   cursor: pointer;
-  -ms-user-select: none;
   -webkit-user-select: none;
+  -ms-user-select: none;
   user-select: none;
 }
 
@@ -287,8 +314,8 @@
 
 .filter-header-content {
   display: flex;
-  align-items: center;
   -ms-flex-align: center;
+  align-items: center;
 }
 
 .expand-icon {
@@ -299,20 +326,28 @@
 
 .filter-merged-container {
   display: flex;
-  flex-direction: column;
   -ms-flex-direction: column;
+  flex-direction: column;
   gap: 8px;
   width: 100%;
 }
 
+.filter-merged-container > .filter-group-row {
+  margin-bottom: 8px;
+}
+
+.filter-merged-container > .filter-group-row:last-child {
+  margin-bottom: 0;
+}
+
 .filter-group-row {
   display: flex;
-  align-items: flex-start;
   -ms-flex-align: start;
+  align-items: flex-start;
   padding: 4px 6px;
   border-bottom: 1px dotted #eee;
-  flex-wrap: wrap;
   -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
 }
 
 .filter-group-name-cell {
@@ -320,38 +355,44 @@
   flex-basis: 100px;
   flex-shrink: 0;
   -ms-flex: 0 0 100px;
+  flex: 0 0 100px;
   padding-top: 2px;
 }
 
 .filter-group-divider {
   padding: 0 10px;
   color: #ccc;
-  user-select: none;
-  -ms-user-select: none;
   -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   padding-top: 2px;
   flex-shrink: 0;
 }
 
 .filter-members-cell {
   display: flex;
-  flex-wrap: wrap;
   -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
   gap: 8px;
-  flex: 1;
   -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+}
+
+.filter-members-cell > * {
+  margin-right: 8px;
+  margin-bottom: 4px;
 }
 
 .checkbox-label {
   display: flex;
-  align-items: center;
   -ms-flex-align: center;
+  align-items: center;
   font-size: 13px;
   cursor: pointer;
   white-space: nowrap;
-  user-select: none;
-  -ms-user-select: none;
   -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .checkbox-label input {
@@ -368,6 +409,14 @@
   gap: 8px;
 }
 
+.filter-actions-row > * {
+  margin-right: 8px;
+}
+
+.filter-actions-row > *:last-child {
+  margin-right: 0;
+}
+
 .filter-title {
   font-size: 12px;
   font-weight: bold;
@@ -377,6 +426,14 @@
   margin-top: 8px;
   display: flex;
   gap: 8px;
+}
+
+.filter-actions > * {
+  margin-right: 8px;
+}
+
+.filter-actions > *:last-child {
+  margin-right: 0;
 }
 
 .filter-actions button {
@@ -402,8 +459,8 @@
   }
   
   .checkbox-wrap-container {
-    flex-direction: column;
     -ms-flex-direction: column;
+    flex-direction: column;
   }
   
   .checkbox-label {
@@ -412,14 +469,19 @@
   }
   
   .view-mode-buttons {
-    flex-wrap: wrap;
     -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
     gap: 4px;
+  }
+
+  .view-mode-buttons > * {
+    margin-right: 4px;
+    margin-bottom: 4px;
   }
   
   .btn-active, .btn-inactive {
-    flex: 1;
     -ms-flex: 1;
+    flex: 1;
     min-width: 80px;
     text-align: center;
     font-size: 12px;
@@ -430,17 +492,17 @@
 /* Day Timeline Specific Styles */
 .day-timeline-container {
   display: flex;
-  flex-direction: column;
   -ms-flex-direction: column;
+  flex-direction: column;
   height: 100%;
 }
 
 .timeline-nav {
   display: flex;
-  justify-content: flex-start;
   -ms-flex-pack: start;
-  align-items: center;
+  justify-content: flex-start;
   -ms-flex-align: center;
+  align-items: center;
   padding: 8px 12px;
   background-color: #fbfbfb;
   border-bottom: 1px solid #edebe9;
@@ -450,9 +512,25 @@
   white-space: nowrap;
 }
 
+.timeline-nav > * {
+  margin-right: 8px;
+}
+
+.timeline-nav > *:last-child {
+  margin-right: 0;
+}
+
 .nav-buttons {
   display: flex;
   gap: 4px;
+}
+
+.nav-buttons > * {
+  margin-right: 4px;
+}
+
+.nav-buttons > *:last-child {
+  margin-right: 0;
 }
 
 .current-date-display {
@@ -485,6 +563,7 @@
   padding: 8px !important;
   font-size: 12px;
   text-align: left;
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -496,12 +575,14 @@
   font-size: 11px;
   text-align: center;
   width: 60px;
+  position: -webkit-sticky;
   position: sticky;
   top: 0;
   z-index: 5;
 }
 
 .sticky-col {
+  position: -webkit-sticky;
   position: sticky;
   left: 0;
   background-color: #ffffff;
@@ -516,8 +597,17 @@
 
 .member-info {
   display: flex;
+  -ms-flex-align: center;
   align-items: center;
   gap: 8px;
+}
+
+.member-info > * {
+  margin-right: 8px;
+}
+
+.member-info > *:last-child {
+  margin-right: 0;
 }
 
 .member-avatar {
@@ -526,7 +616,9 @@
   border-radius: 50%;
   color: white;
   display: flex;
+  -ms-flex-align: center;
   align-items: center;
+  -ms-flex-pack: center;
   justify-content: center;
   font-size: 11px;
   font-weight: bold;

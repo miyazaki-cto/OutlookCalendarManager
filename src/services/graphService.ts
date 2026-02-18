@@ -63,7 +63,7 @@ class GraphService {
       .api('/me/calendar/events')
       .header('Prefer', 'outlook.timezone="Tokyo Standard Time"')
       .filter(`start/dateTime ge '${startDate}' and end/dateTime le '${endDate}'`)
-      .select('id,subject,start,end,location,attendees,body')
+      .select('id,subject,start,end,location,attendees')
       .orderby('start/dateTime')
       .top(999)
       .get();
@@ -77,7 +77,7 @@ class GraphService {
       .api(`/users/${userEmail}/calendar/events`)
       .header('Prefer', 'outlook.timezone="Tokyo Standard Time"')
       .filter(`start/dateTime ge '${startDate}' and end/dateTime le '${endDate}'`)
-      .select('id,subject,start,end,location,attendees,body')
+      .select('id,subject,start,end,location,attendees')
       .orderby('start/dateTime')
       .top(999)
       .get();
@@ -89,33 +89,50 @@ class GraphService {
     const client = await this.getGraphClient();
     const allEvents: any[] = [];
   
-    for (const email of userEmails) {
+    const fetchPromises = userEmails.map(async (email) => {
       try {
         const events = await client
           .api(`/users/${email}/calendar/events`)
           .header('Prefer', 'outlook.timezone="Tokyo Standard Time"')
           .filter(`start/dateTime ge '${startDate}' and end/dateTime le '${endDate}'`)
-          .select('id,subject,start,end,location,attendees,body,organizer')
+          .select('id,subject,start,end,location,attendees,organizer')
           .orderby('start/dateTime')
           .top(999)
           .get();
         
-        const eventsWithUser = events.value.map((event: any) => ({
+        return events.value.map((event: any) => ({
           ...event,
           ownerEmail: email
         }));
-        
-        allEvents.push(...eventsWithUser);
       } catch (error) {
         console.error(`Failed to fetch events for ${email}:`, error);
+        return [];
       }
-    }
+    });
+
+    const results = await Promise.all(fetchPromises);
+    allEvents.push(...results.flat());
   
     allEvents.sort((a, b) => 
       new Date(a.start.dateTime).getTime() - new Date(b.start.dateTime).getTime()
     );
   
     return allEvents;
+  }
+
+  async getEventDetails(eventId: string, userEmail?: string) {
+    const client = await this.getGraphClient();
+    const endpoint = userEmail && userEmail !== await this.getCurrentUserEmail()
+      ? `/users/${userEmail}/calendar/events/${eventId}`
+      : `/me/calendar/events/${eventId}`;
+
+    const event = await client
+      .api(endpoint)
+      .header('Prefer', 'outlook.timezone="Tokyo Standard Time"')
+      .select('id,subject,start,end,location,attendees,body,organizer')
+      .get();
+
+    return event;
   }
 
   async getCurrentUserEmail() {

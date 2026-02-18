@@ -137,6 +137,17 @@
   cursor: pointer;
 }
 
+.btn-clear-all {
+  padding: 2px 8px;
+  font-size: 11px;
+  background-color: #a4262c; /* Red color for clear action */
+  color: white;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+  margin-left: 4px;
+}
+
 /* Selection Lists */
 .selection-list-container {
   border: 1px solid #d1d1d1;
@@ -222,4 +233,9 @@
 
 .btn-save:disabled {
   cursor: not-allowed;
+}
+
+.btn-save.btn-disabled {
+  background-color: #c8c6c4;
+  color: #a19f9d;
 }
