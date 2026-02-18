@@ -85,3 +85,192 @@
   color: #888;
   margin-left: auto;
 }
+
+/* New Standardized UI Classes */
+.btn-save, .btn-refresh, .btn-settings, .btn-active, .btn-inactive, .btn-small, .btn-delete, .btn-cancel {
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  border: 1px solid #d1d1d1;
+}
+
+.btn-save { background-color: #0078d4; color: white; border: none; }
+.btn-refresh { background-color: #0078d4; color: white; border: none; }
+.btn-settings { background-color: #f3f2f1; }
+.btn-active { background-color: #0078d4; color: white; border: none; }
+.btn-inactive { background-color: #f3f2f1; }
+.btn-small { padding: 3px 8px; font-size: 11px; }
+.btn-delete { background-color: #d13438; color: white; border: none; }
+.btn-cancel { background-color: #f3f2f1; }
+
+.view-mode-container {
+  display: flex;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.view-mode-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.view-mode-buttons button {
+  margin-right: 5px; /* IE11 gap fallback */
+}
+
+.main-content-container {
+  flex: 1;
+  -ms-flex: 1;
+  position: relative;
+}
+
+.checkbox-label {
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 12px;
+  margin-right: 8px;
+}
+
+.checkbox-label input {
+  margin-right: 4px;
+}
+
+.loading-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -ms-flex-align: center;
+  align-items: center;
+  z-index: 100;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.list-view {
+  padding: 10px;
+}
+
+.event-item {
+  padding: 10px;
+  margin-bottom: 8px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.event-body-content {
+  margin-top: 5px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow: auto;
+  font-size: 13px;
+}
+
+/* Filter Container Improvements */
+.filter-container {
+  margin-bottom: 12px;
+}
+
+.filter-block {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background-color: #fbfbfb;
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+
+.filter-block-header {
+  padding: 6px 12px;
+  background-color: #f3f2f1;
+  display: flex;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -ms-flex-align: center;
+  align-items: center;
+  cursor: pointer;
+  -ms-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.filter-block-header:hover {
+  background-color: #edebe9;
+}
+
+.filter-block-body {
+  padding: 8px 12px;
+}
+
+.checkbox-wrap-container {
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.checkbox-wrap-container label {
+  margin-right: 8px; /* IE11 gap fallback */
+}
+
+.filter-title {
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.filter-actions {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.filter-actions button {
+  margin-right: 8px; /* IE11 gap fallback */
+}
+
+/* Mobile Responsiveness */
+@media screen and (max-width: 600px) {
+  .app-container {
+    padding: 8px;
+  }
+  
+  .header-container h1 {
+    font-size: 16px;
+  }
+  
+  .checkbox-wrap-container {
+    flex-direction: column;
+    -ms-flex-direction: column;
+  }
+  
+  .checkbox-label {
+    margin-bottom: 4px;
+    width: 100%;
+  }
+  
+  .view-mode-buttons {
+    flex-wrap: wrap;
+    -ms-flex-wrap: wrap;
+    gap: 4px;
+  }
+  
+  .btn-active, .btn-inactive {
+    flex: 1;
+    -ms-flex: 1;
+    min-width: 80px;
+    text-align: center;
+    font-size: 12px;
+    padding: 8px 4px;
+  }
+}
+
