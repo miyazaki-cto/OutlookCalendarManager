@@ -6,6 +6,7 @@ import { CalendarView } from "./CalendarView";
 import { MemberTimelineView } from "./MemberTimelineView";
 import { getUserColor, clearUserColors } from '../../utils/userColors';
 import { EventFormModal } from "./EventFormModal";
+import { SettingsModal } from "./SettingsModal";
 import "./App.css";
 
 
@@ -53,6 +54,8 @@ const App: React.FC<AppProps> = ({ title }) => {
     const saved = localStorage.getItem('calendar_isNoLimit');
     return saved === 'true';
   });
+
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
   React.useEffect(() => {
     graphService.initialize();
@@ -449,6 +452,20 @@ const App: React.FC<AppProps> = ({ title }) => {
             📋
           </button>
           <button 
+            onClick={() => setIsSettingsOpen(true)}
+            style={{
+              padding: '5px 10px',
+              backgroundColor: '#f3f2f1',
+              border: '1px solid #d1d1d1',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              fontSize: '12px'
+            }}
+            title="設定を開きます"
+          >
+            ⚙️
+          </button>
+          <button 
             onClick={() => loadEvents(Object.keys(selectedMembers))}
             disabled={loading}
             style={{
@@ -547,64 +564,7 @@ const App: React.FC<AppProps> = ({ title }) => {
               }}
             >
               クリア
-            </button>
-          </div>
-        </div>
-
-        {/* 取得範囲設定 */}
-        <div className="filter-row range-settings">
-          <span className="filter-label">取得範囲:</span>
-          <div className="range-controls">
-            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '12px' }}>
-              <input
-                type="checkbox"
-                checked={isNoLimit}
-                onChange={(e) => {
-                  const val = e.target.checked;
-                  setIsNoLimit(val);
-                  localStorage.setItem('calendar_isNoLimit', String(val));
-                }}
-                style={{ marginRight: '3px' }}
-              />
-              指定なし
-            </label>
-            
-            <div className="range-select-group" style={{ opacity: isNoLimit ? 0.5 : 1 }}>
-              <span style={{ fontSize: '11px' }}>過去</span>
-              <select
-                value={pastMonths}
-                disabled={isNoLimit}
-                aria-label="過去の取得月数"
-                onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
-                  setPastMonths(val);
-                  localStorage.setItem('calendar_pastMonths', String(val));
-                }}
-                className="select-small"
-              >
-                {[0, 1, 2, 3, 6, 12].map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
-              <span style={{ fontSize: '11px' }}>ヶ月</span>
-              
-              <span style={{ fontSize: '11px', marginLeft: '6px' }}>未来</span>
-              <select
-                value={futureMonths}
-                disabled={isNoLimit}
-                aria-label="未来の取得月数"
-                onChange={(e) => {
-                  const val = parseInt(e.target.value, 10);
-                  setFutureMonths(val);
-                  localStorage.setItem('calendar_futureMonths', String(val));
-                }}
-                className="select-small"
-              >
-                {[0, 1, 2, 3, 6, 12, 24].map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
-              <span style={{ fontSize: '11px' }}>ヶ月</span>
             </div>
-            
-            <span className="range-help">※範囲が狭いほど高速です</span>
-          </div>
         </div>
       </div>
 
@@ -651,11 +611,10 @@ const App: React.FC<AppProps> = ({ title }) => {
               fontSize: '13px'
             }}
           >
-            今日
+            当日リスト
           </button>
         </div>
-        
-        <button 
+        <button
           onClick={() => loadEvents(Object.keys(selectedMembers))}
           disabled={loading}
           style={{
@@ -668,87 +627,42 @@ const App: React.FC<AppProps> = ({ title }) => {
             fontSize: '13px'
           }}
         >
-          {loading ? '更新中...' : '🔄 更新'}
+          {loading ? '読込中...' : '更新'}
         </button>
       </div>
 
-      {/* ローディングオーバーレイ */}
-      {loading && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(255, 255, 255, 0.85)',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 2000
-        }}>
+      <div style={{ flex: 1, position: 'relative' }}>
+        {loading && (
           <div style={{
-            width: '40px',
-            height: '40px',
-            border: '4px solid #e0e0e0',
-            borderTop: '4px solid #0078d4',
-            borderRadius: '50%',
-            animation: 'spin 0.8s linear infinite'
-          }} />
-          <p style={{
-            marginTop: '16px',
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 100,
             fontSize: '14px',
-            color: '#333',
             fontWeight: 'bold'
-          }}>{loadingMessage || '読み込み中...'}</p>
-          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
-        </div>
-      )}
+          }}>
+            {loadingMessage}
+          </div>
+        )}
 
-      {/* カレンダー、タイムライン、またはリスト表示 */}
-      {viewMode === 'calendar' ? (
-
-        <CalendarView
-          events={events}
-          currentUserEmail={currentUserEmail}
-          onSelectEvent={handleSelectEvent}
-          onSelectSlot={handleSelectSlot}
-        />
-      ) : viewMode === 'timeline' ? (
-        <MemberTimelineView
-          events={events}
-          members={groupConfig
+        {viewMode === 'calendar' ? (
+          <CalendarView
+            events={events}
+            onSelectEvent={handleSelectEvent}
+            onSelectSlot={handleSelectSlot}
+            currentUserEmail={currentUserEmail}
+          />
+        ) : viewMode === 'timeline' ? (
+          <MemberTimelineView
+            events={events}
+            members={groupConfig
             .flatMap(g => g.members)
             .filter(member => selectedMembers[member.email])
             .filter((member, index, self) => 
               index === self.findIndex(m => m.email === member.email)
-            )
-          }
-          currentUserEmail={currentUserEmail}
-          onSelectEvent={handleSelectEvent}
-          onSelectSlot={handleSelectSlot}
-        />
-      ) : (
-          <div>
-          {(() => {
-            // 今日の予定のみフィルタリング
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const tomorrow = new Date(today);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            
-            const todayEvents = events.filter(event => {
-              const eventStart = new Date(event.start.dateTime);
-              return eventStart >= today && eventStart < tomorrow;
-            });
-            
-            if (todayEvents.length === 0) {
-              return <p>今日の予定がありません</p>;
-            }
-            
-            return (
-              <div>
-                <h3 style={{ fontSize: '16px', marginBottom: '15px', fontWeight: 'bold' }}>
                   今日の予定 ({today.getMonth() + 1}月{today.getDate()}日)
                 </h3>
                 {
@@ -933,8 +847,30 @@ const App: React.FC<AppProps> = ({ title }) => {
                 onClose={closeEventForm}
               />
             )}
-          </div>
-        );
-      };
+
+      {/* 設定モーダル */}
+      {isSettingsOpen && (
+        <SettingsModal
+          pastMonths={pastMonths}
+          futureMonths={futureMonths}
+          isNoLimit={isNoLimit}
+          onPastMonthsChange={(val) => {
+            setPastMonths(val);
+            localStorage.setItem('calendar_pastMonths', String(val));
+          }}
+          onFutureMonthsChange={(val) => {
+            setFutureMonths(val);
+            localStorage.setItem('calendar_futureMonths', String(val));
+          }}
+          onisNoLimitChange={(val) => {
+            setIsNoLimit(val);
+            localStorage.setItem('calendar_isNoLimit', String(val));
+          }}
+          onClose={() => setIsSettingsOpen(false)}
+        />
+      )}
+    </div>
+  );
+};
 
 export default App;

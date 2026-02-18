@@ -1,0 +1,36 @@
+.settings-modal {
+  max-width: 400px;
+}
+
+.description-text {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.settings-row {
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.settings-controls.disabled {
+  opacity: 0.5;
+  /* IE11 doesn't support pointer-events: none on some elements, but opacity 0.5 communicates state */
+}
+
+.control-label {
+  font-size: 14px;
+  min-width: 40px;
+}
+
+.control-unit {
+  font-size: 14px;
+  margin-left: 8px;
+}
+
+.settings-modal .select-small {
+  width: 80px;
+  padding: 5px;
+}
