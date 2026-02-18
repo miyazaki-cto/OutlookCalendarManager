@@ -245,7 +245,16 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
   const handleDateChange = (type: "start" | "end", dateValue: string) => {
     if (type === "start") {
       const [, time] = startDate.split("T");
-      setStartDate(`${dateValue}T${time || "00:00"}`);
+      const newStart = `${dateValue}T${time || "00:00"}`;
+      setStartDate(newStart);
+      
+      // 開始日が変更されたら、終了時刻を1時間後に自動調整
+      const newStartDate = new Date(newStart);
+      if (!isNaN(newStartDate.getTime())) {
+        const newEndDate = new Date(newStartDate);
+        newEndDate.setHours(newStartDate.getHours() + 1);
+        setEndDate(toLocalDateTimeString(newEndDate));
+      }
     } else {
       const [, time] = endDate.split("T");
       setEndDate(`${dateValue}T${time || "00:00"}`);
@@ -255,7 +264,16 @@ export const EventFormModal: React.FC<EventFormModalProps> = ({
   const handleTimeChange = (type: "start" | "end", timeValue: string) => {
     if (type === "start") {
       const [date] = startDate.split("T");
-      setStartDate(`${date}T${timeValue}`);
+      const newStart = `${date}T${timeValue}`;
+      setStartDate(newStart);
+      
+      // 開始時刻が変更されたら、終了時刻を1時間後に自動調整
+      const newStartDate = new Date(newStart);
+      if (!isNaN(newStartDate.getTime())) {
+        const newEndDate = new Date(newStartDate);
+        newEndDate.setHours(newStartDate.getHours() + 1);
+        setEndDate(toLocalDateTimeString(newEndDate));
+      }
     } else {
       const [date] = endDate.split("T");
       setEndDate(`${date}T${timeValue}`);

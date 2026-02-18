@@ -4,6 +4,7 @@ import { groupConfig, Member } from "../../config/groupConfig";
 import { CalendarEvent, SelectedMembers, SelectedGroups } from "../../types/calendar";
 import { CalendarView } from "./CalendarView";
 import { MemberTimelineView } from "./MemberTimelineView";
+import { MemberDayTimelineView } from "./MemberDayTimelineView";
 import { getUserColor, clearUserColors } from '../../utils/userColors';
 import { EventFormModal } from "./EventFormModal";
 import { SettingsModal } from "./SettingsModal";
@@ -20,7 +21,7 @@ const App: React.FC<AppProps> = ({ title }) => {
   const [loadingMessage, setLoadingMessage] = React.useState<string>('');
   const [currentUserEmail, setCurrentUserEmail] = React.useState<string>("");
   
-  const [viewMode, setViewMode] = React.useState<'calendar' | 'list' | 'timeline'>('timeline');
+  const [viewMode, setViewMode] = React.useState<'calendar' | 'list' | 'timeline' | 'day-timeline'>('timeline');
 
   const [eventFormMode, setEventFormMode] = React.useState<'create' | 'edit' | null>(null);
   const [eventFormInitialStart, setEventFormInitialStart] = React.useState<Date | undefined>();
@@ -274,6 +275,16 @@ const App: React.FC<AppProps> = ({ title }) => {
     setEventToEdit(null);
   };
 
+  const handleSaveSettings = (past: number, future: number, noLimit: boolean) => {
+    setPastMonths(past);
+    setFutureMonths(future);
+    setIsNoLimit(noLimit);
+    localStorage.setItem('calendar_pastMonths', String(past));
+    localStorage.setItem('calendar_futureMonths', String(future));
+    localStorage.setItem('calendar_isNoLimit', String(noLimit));
+    setIsSettingsOpen(false);
+  };
+
   const closeEventDetail = () => setSelectedEvent(null);
 
   if (!isLoggedIn) {
@@ -290,10 +301,20 @@ const App: React.FC<AppProps> = ({ title }) => {
   return (
     <div className="app-container">
       <div className="header-container">
-        <h1 style={{ fontSize: '18px', margin: 0, fontWeight: 'bold' }}>{title}</h1>
-        <div style={{ display: 'flex', gap: '4px' }}>
+        <h1 className="header-title">{title}</h1>
+        
+        <div className="header-view-switcher">
+          <div className="view-mode-buttons">
+            <button onClick={() => setViewMode('calendar')} className={viewMode === 'calendar' ? 'btn-active' : 'btn-inactive'} title="カレンダー">📅 <span className="btn-text">カレンダー</span></button>
+            <button onClick={() => setViewMode('timeline')} className={viewMode === 'timeline' ? 'btn-active' : 'btn-inactive'} title="週ライン">📊 <span className="btn-text">週ライン</span></button>
+            <button onClick={() => setViewMode('day-timeline')} className={viewMode === 'day-timeline' ? 'btn-active' : 'btn-inactive'} title="日ライン">🕒 <span className="btn-text">日ライン</span></button>
+            <button onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'btn-active' : 'btn-inactive'} title="当日リスト">📋 <span className="btn-text">リスト</span></button>
+          </div>
+        </div>
+
+        <div className="header-actions">
+          <button onClick={() => loadEvents(Object.keys(selectedMembers))} disabled={loading} className="btn-refresh" title="更新">🔄</button>
           <button onClick={() => setIsSettingsOpen(true)} className="btn-settings" title="設定">⚙️</button>
-          <button onClick={() => loadEvents(Object.keys(selectedMembers))} disabled={loading} className="btn-refresh">🔄</button>
         </div>
       </div>
       
@@ -372,13 +393,6 @@ const App: React.FC<AppProps> = ({ title }) => {
         </div>
       </div>
 
-      <div className="view-mode-container">
-        <div className="view-mode-buttons">
-          <button onClick={() => setViewMode('calendar')} className={viewMode === 'calendar' ? 'btn-active' : 'btn-inactive'}>📅 カレンダー</button>
-          <button onClick={() => setViewMode('timeline')} className={viewMode === 'timeline' ? 'btn-active' : 'btn-inactive'}>📊 タイムライン</button>
-          <button onClick={() => setViewMode('list')} className={viewMode === 'list' ? 'btn-active' : 'btn-inactive'}>📋 当日リスト</button>
-        </div>
-      </div>
 
       <div className="main-content-container">
         {loading && <div className="loading-overlay">{loadingMessage}</div>}
@@ -386,6 +400,8 @@ const App: React.FC<AppProps> = ({ title }) => {
           <CalendarView events={events} onSelectEvent={handleSelectEvent} onSelectSlot={handleSelectSlot} currentUserEmail={currentUserEmail} />
         ) : viewMode === 'timeline' ? (
           <MemberTimelineView events={events} members={getAvailableMembers().filter(m => selectedMembers[m.email])} onSelectSlot={handleSelectSlot} onSelectEvent={handleSelectEvent} currentUserEmail={currentUserEmail} />
+        ) : viewMode === 'day-timeline' ? (
+          <MemberDayTimelineView events={events} members={getAvailableMembers().filter(m => selectedMembers[m.email])} onSelectSlot={handleSelectSlot} onSelectEvent={handleSelectEvent} currentUserEmail={currentUserEmail} />
         ) : (
           <div className="list-view">
             <h3>今日の予定 ({new Date().toLocaleDateString('ja-JP')})</h3>
@@ -446,9 +462,7 @@ const App: React.FC<AppProps> = ({ title }) => {
           pastMonths={pastMonths}
           futureMonths={futureMonths}
           isNoLimit={isNoLimit}
-          onPastMonthsChange={v => { setPastMonths(v); localStorage.setItem('calendar_pastMonths', String(v)); }}
-          onFutureMonthsChange={v => { setFutureMonths(v); localStorage.setItem('calendar_futureMonths', String(v)); }}
-          onisNoLimitChange={v => { setIsNoLimit(v); localStorage.setItem('calendar_isNoLimit', String(v)); }}
+          onSave={handleSaveSettings}
           onClose={() => setIsSettingsOpen(false)}
         />
       )}

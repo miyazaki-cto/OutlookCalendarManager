@@ -5,9 +5,7 @@ interface SettingsModalProps {
   pastMonths: number;
   futureMonths: number;
   isNoLimit: boolean;
-  onPastMonthsChange: (val: number) => void;
-  onFutureMonthsChange: (val: number) => void;
-  onisNoLimitChange: (val: boolean) => void;
+  onSave: (past: number, future: number, noLimit: boolean) => void;
   onClose: () => void;
 }
 
@@ -15,11 +13,16 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   pastMonths,
   futureMonths,
   isNoLimit,
-  onPastMonthsChange,
-  onFutureMonthsChange,
-  onisNoLimitChange,
+  onSave,
   onClose,
 }) => {
+  const [internalPast, setInternalPast] = React.useState(pastMonths);
+  const [internalFuture, setInternalFuture] = React.useState(futureMonths);
+  const [internalNoLimit, setInternalNoLimit] = React.useState(isNoLimit);
+
+  const handleSave = () => {
+    onSave(internalPast, internalFuture, internalNoLimit);
+  };
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-container settings-modal" onClick={(e) => e.stopPropagation()}>
@@ -38,21 +41,21 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <label className="checkbox-label">
                 <input
                   type="checkbox"
-                  checked={isNoLimit}
-                  onChange={(e) => onisNoLimitChange(e.target.checked)}
+                  checked={internalNoLimit}
+                  onChange={(e) => setInternalNoLimit(e.target.checked)}
                   className="checkbox-input"
                 />
                 期間指定なし（前後1年分を取得）
               </label>
             </div>
 
-            <div className={`settings-controls ${isNoLimit ? "disabled" : ""}`}>
+            <div className={`settings-controls ${internalNoLimit ? "disabled" : ""}`}>
               <div className="settings-row">
                 <span className="control-label">過去</span>
                 <select
-                  value={pastMonths}
-                  disabled={isNoLimit}
-                  onChange={(e) => onPastMonthsChange(parseInt(e.target.value, 10))}
+                  value={internalPast}
+                  disabled={internalNoLimit}
+                  onChange={(e) => setInternalPast(parseInt(e.target.value, 10))}
                   className="input-field select-small"
                   aria-label="過去の取得月数"
                 >
@@ -68,9 +71,9 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               <div className="settings-row">
                 <span className="control-label">未来</span>
                 <select
-                  value={futureMonths}
-                  disabled={isNoLimit}
-                  onChange={(e) => onFutureMonthsChange(parseInt(e.target.value, 10))}
+                  value={internalFuture}
+                  disabled={internalNoLimit}
+                  onChange={(e) => setInternalFuture(parseInt(e.target.value, 10))}
                   className="input-field select-small"
                   aria-label="未来の取得月数"
                 >
@@ -86,8 +89,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
           </div>
         </div>
         <div className="modal-footer">
-          <button type="button" onClick={onClose} className="btn-save">
-            閉じる
+          <button type="button" onClick={handleSave} className="btn-save">
+            保存して閉じる
           </button>
         </div>
       </div>

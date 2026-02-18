@@ -18,6 +18,7 @@ export const MemberTimelineView: React.FC<MemberTimelineViewProps> = ({
   onSelectEvent,
   onSelectSlot,
 }) => {
+  const weekDatePickerRef = React.useRef<HTMLInputElement>(null);
   const [currentWeekStart, setCurrentWeekStart] = React.useState(() => {
     // 今週の月曜日を取得
     const today = new Date();
@@ -123,59 +124,87 @@ export const MemberTimelineView: React.FC<MemberTimelineViewProps> = ({
     <div style={{ width: '100%', overflowX: 'auto' }}>
     {/* ナビゲーション */}
     <div style={{ 
-    display: 'flex', 
-    justifyContent: 'space-between', 
-    alignItems: 'center',
-    padding: '6px 10px',
-    borderBottom: '1px solid #ddd',
-    marginBottom: '6px',
-    backgroundColor: '#fafafa'
+      display: 'flex', 
+      justifyContent: 'flex-start', 
+      alignItems: 'center',
+      padding: '8px 12px',
+      borderBottom: '1px solid #edebe9',
+      marginBottom: '8px',
+      backgroundColor: '#fbfbfb',
+      gap: '8px'
     }}>
-    <div style={{ display: 'flex', gap: '6px' }}>
-        <button 
-        onClick={goToPreviousWeek}
-        style={{
-            padding: '4px 10px',
-            backgroundColor: '#f3f2f1',
-            border: '1px solid #d1d1d1',
-            borderRadius: '3px',
-            cursor: 'pointer',
-            fontSize: '12px'
-        }}
-        >
-        ← 前週
-        </button>
-        <button 
-        onClick={goToThisWeek}
-        style={{
-            padding: '4px 10px',
-            backgroundColor: '#0078d4',
-            color: 'white',
-            border: 'none',
-            borderRadius: '3px',
-            cursor: 'pointer',
-            fontSize: '12px'
-        }}
-        >
-        今週
-        </button>
-        <button 
-        onClick={goToNextWeek}
-        style={{
-            padding: '4px 10px',
-            backgroundColor: '#f3f2f1',
-            border: '1px solid #d1d1d1',
-            borderRadius: '3px',
-            cursor: 'pointer',
-            fontSize: '12px'
-        }}
-        >
-        次週 →
-        </button>
-    </div>
-    <div style={{ fontSize: '14px', fontWeight: 'bold' }}>
+      <div style={{ fontSize: '14px', fontWeight: 'bold', whiteSpace: 'nowrap', marginRight: '8px' }}>
         {weekDays[0].getMonth() + 1}月{weekDays[0].getDate()}日 - {weekDays[6].getMonth() + 1}月{weekDays[6].getDate()}日
-    </div>
+      </div>
+      <button 
+        onClick={goToPreviousWeek}
+        className="btn-inactive"
+        style={{ padding: '4px 10px', fontSize: '12px' }}
+      >
+        ← 前週
+      </button>
+      <button 
+        onClick={goToThisWeek}
+        className="btn-active"
+        style={{ padding: '4px 10px', fontSize: '12px' }}
+      >
+        今週
+      </button>
+      <button 
+        onClick={goToNextWeek}
+        className="btn-inactive"
+        style={{ padding: '4px 10px', fontSize: '12px' }}
+      >
+        次週 →
+      </button>
+      <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+        <button 
+          className="btn-inactive" 
+          style={{ padding: '4px 10px', fontSize: '12px' }}
+          onClick={() => {
+            const input = weekDatePickerRef.current;
+            if (input) {
+              if (typeof input.showPicker === 'function') {
+                input.showPicker();
+              } else {
+                input.click();
+              }
+            }
+          }}
+          title="日付を選択"
+        >
+          📅
+        </button>
+        <input 
+          ref={weekDatePickerRef}
+          type="date" 
+          tabIndex={-1}
+          aria-hidden="true"
+          style={{ 
+            position: 'absolute', 
+            top: 0, 
+            left: 0, 
+            width: '100%', 
+            height: '100%', 
+            opacity: 0, 
+            pointerEvents: 'none',
+            border: 'none', 
+            padding: 0,
+            margin: 0
+          }}
+          onChange={(e) => {
+            if (e.target.value) {
+              const selectedDate = new Date(e.target.value);
+              const day = selectedDate.getDay();
+              const diff = day === 0 ? -6 : 1 - day;
+              const monday = new Date(selectedDate);
+              monday.setDate(selectedDate.getDate() + diff);
+              monday.setHours(0, 0, 0, 0);
+              setCurrentWeekStart(monday);
+            }
+          }}
+        />
+      </div>
     </div>
 
       {/* テーブル */}
@@ -276,16 +305,22 @@ export const MemberTimelineView: React.FC<MemberTimelineViewProps> = ({
                         onSelectSlot({ start, end, memberEmail: member.email });
                       }}
                       style={{
-                        padding: '8px',
+                        padding: 0,
                         borderRight: '1px solid #ddd',
                         borderBottom: '1px solid #ddd',
                         verticalAlign: 'top',
-                        minHeight: '80px',
                         backgroundColor: 'white',
                         cursor: 'pointer'
                       }}
                     >
-                      {dayEvents.map((event, eventIndex) => {
+                      <div 
+                        style={{
+                          padding: '8px',
+                          minHeight: '80px',
+                          width: '100%'
+                        }}
+                      >
+                        {dayEvents.map((event, eventIndex) => {
                         const isAllDay = isAllDayEvent(event);
                         const startTime = new Date(event.start.dateTime);
                         const endTime = new Date(event.end.dateTime);
@@ -336,6 +371,7 @@ export const MemberTimelineView: React.FC<MemberTimelineViewProps> = ({
                           </div>
                         );
                       })}
+                      </div>
                     </td>
                   );
                 })}
