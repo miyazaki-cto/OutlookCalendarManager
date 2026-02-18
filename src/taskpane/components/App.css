@@ -1,0 +1,87 @@
+.app-container {
+  padding: 10px;
+  height: 100vh;
+  overflow: auto;
+}
+
+.header-container {
+  display: flex;
+  -ms-flex-pack: justify;
+  justify-content: space-between;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.filter-section {
+  margin-bottom: 8px;
+  padding: 8px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+}
+
+.filter-row {
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.filter-label {
+  font-size: 12px;
+  font-weight: bold;
+  min-width: 60px;
+  margin-right: 8px;
+}
+
+.filter-items {
+  display: flex;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  -ms-flex: 1;
+  flex: 1;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.filter-items > * {
+  margin-right: 6px;
+}
+
+.range-settings {
+  border-top: 1px solid #eee;
+  margin-top: 6px;
+  padding-top: 6px;
+}
+
+.range-controls {
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex: 1;
+  flex: 1;
+}
+
+.range-select-group {
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.range-select-group > * {
+  margin-right: 4px;
+}
+
+.select-small {
+  font-size: 11px;
+  padding: 1px;
+}
+
+.range-help {
+  font-size: 10px;
+  color: #888;
+  margin-left: auto;
+}

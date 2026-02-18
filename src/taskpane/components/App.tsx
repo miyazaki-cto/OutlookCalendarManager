@@ -6,6 +6,7 @@ import { CalendarView } from "./CalendarView";
 import { MemberTimelineView } from "./MemberTimelineView";
 import { getUserColor, clearUserColors } from '../../utils/userColors';
 import { EventFormModal } from "./EventFormModal";
+import "./App.css";
 
 
 export interface AppProps {
@@ -39,6 +40,20 @@ const App: React.FC<AppProps> = ({ title }) => {
   // 削除確認状態
   const [confirmingDelete, setConfirmingDelete] = React.useState(false);
 
+  // 取得範囲の設定
+  const [pastMonths, setPastMonths] = React.useState<number>(() => {
+    const saved = localStorage.getItem('calendar_pastMonths');
+    return saved !== null ? parseInt(saved, 10) : 0; // デフォルト0ヶ月（当月のみ）
+  });
+  const [futureMonths, setFutureMonths] = React.useState<number>(() => {
+    const saved = localStorage.getItem('calendar_futureMonths');
+    return saved !== null ? parseInt(saved, 10) : 2; // デフォルト2ヶ月
+  });
+  const [isNoLimit, setIsNoLimit] = React.useState<boolean>(() => {
+    const saved = localStorage.getItem('calendar_isNoLimit');
+    return saved === 'true';
+  });
+
   React.useEffect(() => {
     graphService.initialize();
 
@@ -66,6 +81,13 @@ const App: React.FC<AppProps> = ({ title }) => {
   return () => clearInterval(interval);
   }
 }, [isLoggedIn]);
+
+  // 範囲設定が変更されたら予定を再取得
+  React.useEffect(() => {
+    if (isLoggedIn && Object.keys(selectedMembers).length > 0) {
+      loadEvents(Object.keys(selectedMembers));
+    }
+  }, [pastMonths, futureMonths, isNoLimit]);
 
 
   const handleLogin = async () => {
@@ -109,18 +131,29 @@ const App: React.FC<AppProps> = ({ title }) => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      // 前3ヶ月から後6ヶ月までの予定を取得
-      const threeMonthsAgo = new Date(today.getFullYear(), today.getMonth() - 3, 1);
-      const sixMonthsLater = new Date(today.getFullYear(), today.getMonth() + 7, 0);
-      
-      const startDate = threeMonthsAgo.toISOString();
-      const endDate = sixMonthsLater.toISOString();
+      let startDate: string;
+      let endDate: string;
+
+      if (isNoLimit) {
+        // 「指定なし」の場合は前後1年分取得（パフォーマンスを考慮）
+        const start = new Date(today.getFullYear() - 1, today.getMonth(), 1);
+        const end = new Date(today.getFullYear() + 1, today.getMonth() + 1, 0);
+        startDate = start.toISOString();
+        endDate = end.toISOString();
+      } else {
+        // 設定された月数に基づいて取得範囲を計算
+        const start = new Date(today.getFullYear(), today.getMonth() - pastMonths, 1);
+        const end = new Date(today.getFullYear(), today.getMonth() + futureMonths + 1, 0);
+        startDate = start.toISOString();
+        endDate = end.toISOString();
+      }
       
       console.log('Data fetch period:', {
-        start: startDate,
-        end: endDate,
-        startLocal: threeMonthsAgo.toLocaleString('ja-JP'),
-        endLocal: sixMonthsLater.toLocaleString('ja-JP')
+        pastMonths,
+        futureMonths,
+        isNoLimit,
+        startDate,
+        endDate
       });
       
       if (userEmails.length === 1 && userEmails[0] === currentUserEmail) {
@@ -460,7 +493,7 @@ const App: React.FC<AppProps> = ({ title }) => {
         </div>
 
         {/* メンバーフィルター - 1行に */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
           <span style={{ fontSize: '12px', fontWeight: 'bold', minWidth: '60px' }}>メンバー:</span>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', flex: 1, alignItems: 'center' }}>
             {getAvailableMembers().map(member => (
@@ -515,6 +548,62 @@ const App: React.FC<AppProps> = ({ title }) => {
             >
               クリア
             </button>
+          </div>
+        </div>
+
+        {/* 取得範囲設定 */}
+        <div className="filter-row range-settings">
+          <span className="filter-label">取得範囲:</span>
+          <div className="range-controls">
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', fontSize: '12px' }}>
+              <input
+                type="checkbox"
+                checked={isNoLimit}
+                onChange={(e) => {
+                  const val = e.target.checked;
+                  setIsNoLimit(val);
+                  localStorage.setItem('calendar_isNoLimit', String(val));
+                }}
+                style={{ marginRight: '3px' }}
+              />
+              指定なし
+            </label>
+            
+            <div className="range-select-group" style={{ opacity: isNoLimit ? 0.5 : 1 }}>
+              <span style={{ fontSize: '11px' }}>過去</span>
+              <select
+                value={pastMonths}
+                disabled={isNoLimit}
+                aria-label="過去の取得月数"
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  setPastMonths(val);
+                  localStorage.setItem('calendar_pastMonths', String(val));
+                }}
+                className="select-small"
+              >
+                {[0, 1, 2, 3, 6, 12].map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+              <span style={{ fontSize: '11px' }}>ヶ月</span>
+              
+              <span style={{ fontSize: '11px', marginLeft: '6px' }}>未来</span>
+              <select
+                value={futureMonths}
+                disabled={isNoLimit}
+                aria-label="未来の取得月数"
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  setFutureMonths(val);
+                  localStorage.setItem('calendar_futureMonths', String(val));
+                }}
+                className="select-small"
+              >
+                {[0, 1, 2, 3, 6, 12, 24].map(m => <option key={m} value={m}>{m}</option>)}
+              </select>
+              <span style={{ fontSize: '11px' }}>ヶ月</span>
+            </div>
+            
+            <span className="range-help">※範囲が狭いほど高速です</span>
           </div>
         </div>
       </div>
