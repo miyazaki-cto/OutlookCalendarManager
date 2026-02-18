@@ -28,6 +28,12 @@ export interface CalendarEvent {
     };
   };
   ownerEmail?: string;
+  onlineMeeting?: {
+    joinUrl: string;
+  };
+  responseStatus?: {
+    response: string;
+  };
 }
 
 export interface SelectedMembers {

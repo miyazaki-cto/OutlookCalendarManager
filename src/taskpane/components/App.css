@@ -346,8 +346,8 @@
   align-items: flex-start;
   padding: 4px 6px;
   border-bottom: 1px dotted #eee;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
+  -ms-flex-wrap: nowrap;
+  flex-wrap: nowrap;
 }
 
 .filter-group-name-cell {
@@ -378,10 +378,15 @@
   flex: 1 1 auto;
 }
 
-.filter-members-cell > * {
-  margin-right: 8px;
+.member-label {
+  margin-right: 12px;
   margin-bottom: 4px;
+  display: inline-flex;
+  -ms-flex-align: center;
+  align-items: center;
 }
+
+
 
 .checkbox-label {
   display: flex;
@@ -681,3 +686,184 @@
   50% { background-color: #005a9e; }
   100% { background-color: #0078d4; }
 }
+
+/* Enhanced List View Styles */
+.list-view-search-wrapper {
+  padding: 8px 12px;
+  background-color: #f3f2f1;
+  border-bottom: 1px solid #edebe9;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.listview-period-selector {
+  display: flex;
+  gap: 4px;
+}
+
+.listview-period-selector .btn-period {
+  flex: 1;
+  padding: 4px 0;
+  font-size: 11px;
+  border: 1px solid #d1d1d1;
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.listview-period-selector .btn-period.active {
+  background-color: #0078d4;
+  color: white;
+  border-color: #0078d4;
+}
+
+.list-date-header {
+  padding: 8px 12px 4px 12px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #0078d4;
+  background-color: #f3f2f1;
+  border-bottom: 1px solid #edebe9;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  margin: 0 -12px 8px -12px;
+}
+
+.list-view-search-input {
+  width: 100%;
+  padding: 6px 10px;
+  border: 1px solid #d1d1d1;
+  border-radius: 4px;
+  font-size: 13px;
+  outline: none;
+}
+
+.list-view-search-input:focus {
+  border-color: #0078d4;
+}
+
+.list-view-content {
+  padding: 12px;
+}
+
+.event-item {
+  background-color: white;
+  margin-bottom: 12px;
+  padding: 12px;
+  border-right: 1px solid #edebe9;
+  border-top: 1px solid #edebe9;
+  border-bottom: 2px solid #e1dfdd;
+  border-radius: 4px;
+  box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,0.13), 0 0.3px 0.9px 0 rgba(0,0,0,0.11);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.event-item:hover {
+  background-color: #f8f8f8;
+  transform: translateY(-1px);
+  box-shadow: 0 3.2px 7.2px 0 rgba(0,0,0,0.13), 0 0.6px 1.8px 0 rgba(0,0,0,0.11);
+}
+
+.event-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 6px;
+}
+
+.event-item-title-row {
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-wrap: wrap;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.event-item-owner {
+  font-size: 11px;
+  color: #666;
+  background-color: #f3f2f1;
+  padding: 1px 6px;
+  border-radius: 10px;
+}
+
+.event-item-subject {
+  font-weight: bold;
+  font-size: 14px;
+  color: #323130;
+}
+
+.event-item-info {
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.event-item-info-line {
+  display: flex;
+  -ms-flex-align: center;
+  align-items: center;
+  font-size: 12px;
+  color: #605e5c;
+}
+
+.info-icon {
+  margin-right: 6px;
+  width: 14px;
+  text-align: center;
+}
+
+.event-item-body-snippet {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.event-item-actions {
+  display: flex;
+  -ms-flex-pack: end;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.btn-join {
+  display: inline-flex;
+  -ms-flex-align: center;
+  align-items: center;
+  background-color: #0078d4;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 2px;
+  font-size: 12px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.btn-join:hover {
+  background-color: #106ebe;
+  color: white;
+}
+
+.status-badge {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 2px;
+  font-weight: bold;
+}
+
+.status-accepted { background-color: #dff6dd; color: #107c10; }
+.status-tentative { background-color: #fff4ce; color: #797775; }
+.status-declined { background-color: #fde7e9; color: #a4262c; }
+.status-none { background-color: #f3f2f1; color: #605e5c; }

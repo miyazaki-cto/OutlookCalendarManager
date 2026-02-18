@@ -63,7 +63,7 @@ class GraphService {
       .api('/me/calendar/events')
       .header('Prefer', 'outlook.timezone="Tokyo Standard Time"')
       .filter(`start/dateTime ge '${startDate}' and end/dateTime le '${endDate}'`)
-      .select('id,subject,start,end,location,attendees')
+      .select('id,subject,start,end,location,attendees,onlineMeeting,responseStatus,body')
       .orderby('start/dateTime')
       .top(999)
       .get();
@@ -77,7 +77,7 @@ class GraphService {
       .api(`/users/${userEmail}/calendar/events`)
       .header('Prefer', 'outlook.timezone="Tokyo Standard Time"')
       .filter(`start/dateTime ge '${startDate}' and end/dateTime le '${endDate}'`)
-      .select('id,subject,start,end,location,attendees')
+      .select('id,subject,start,end,location,attendees,onlineMeeting,responseStatus,body')
       .orderby('start/dateTime')
       .top(999)
       .get();
@@ -95,7 +95,7 @@ class GraphService {
           .api(`/users/${email}/calendar/events`)
           .header('Prefer', 'outlook.timezone="Tokyo Standard Time"')
           .filter(`start/dateTime ge '${startDate}' and end/dateTime le '${endDate}'`)
-          .select('id,subject,start,end,location,attendees,organizer')
+          .select('id,subject,start,end,location,attendees,organizer,onlineMeeting,responseStatus,body')
           .orderby('start/dateTime')
           .top(999)
           .get();
