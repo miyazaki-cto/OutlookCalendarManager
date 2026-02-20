@@ -487,10 +487,14 @@
   .btn-active, .btn-inactive {
     -ms-flex: 1;
     flex: 1;
-    min-width: 80px;
     text-align: center;
     font-size: 12px;
     padding: 8px 4px;
+  }
+
+  .view-mode-buttons .btn-active,
+  .view-mode-buttons .btn-inactive {
+    min-width: auto;
   }
 }
 
@@ -1137,4 +1141,40 @@
 
 .btn-icon:hover {
   background-color: #edebe9;
+}
+
+/* Calendar View Toolbar */
+.calendar-toolbar-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 10px;
+  border-bottom: 2px solid #ddd;
+}
+
+.calendar-toolbar-label {
+  font-size: 18px;
+  font-weight: bold;
+  white-space: nowrap;
+  margin: 0 8px;
+  text-align: center;
+}
+
+@media screen and (max-width: 600px) {
+  .calendar-toolbar-container {
+    padding: 8px 4px;
+    margin-bottom: 10px;
+  }
+  
+  .calendar-toolbar-label {
+    font-size: 13px; /* Reduced font size to fit on one line */
+    margin: 0 4px;
+  }
+  
+  /* Improve spacing for buttons inside toolbar on mobile */
+  .calendar-toolbar-container button {
+    padding: 6px 8px !important;
+    font-size: 11px !important;
+  }
 }

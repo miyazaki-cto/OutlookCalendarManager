@@ -116,43 +116,27 @@ React.useEffect(() => {
     const label = () => {
       const date = toolbar.date;
       
-      // ビューに応じて表示を変更
+      let labelText = '';
       if (toolbar.view === 'month') {
-        return (
-          <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
-            {format(date, 'yyyy年 M月', { locale: ja })}
-          </span>
-        );
+        labelText = format(date, 'yyyy年 M月', { locale: ja });
       } else if (toolbar.view === 'week') {
-        // 週表示：週の最初と最後の日付を表示
         const weekStart = startOfWeek(date, { locale: ja, weekStartsOn: 1 });
         const weekEnd = new Date(weekStart);
         weekEnd.setDate(weekEnd.getDate() + 6);
-        
-        return (
-          <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
-            {format(weekStart, 'yyyy年 M月d日', { locale: ja })} - {format(weekEnd, 'M月d日', { locale: ja })}
-          </span>
-        );
+        labelText = `${format(weekStart, 'yyyy年 M月d日', { locale: ja })} - ${format(weekEnd, 'M月d日', { locale: ja })}`;
       } else {
-        // 日表示：年月日と曜日を表示
-        return (
-          <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
-            {format(date, 'yyyy年 M月d日 (E)', { locale: ja })}
-          </span>
-        );
+        labelText = format(date, 'yyyy年 M月d日 (E)', { locale: ja });
       }
+
+      return (
+        <span className="calendar-toolbar-label">
+          {labelText}
+        </span>
+      );
     };
 
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: '20px',
-        padding: '10px',
-        borderBottom: '2px solid #ddd'
-      }}>
+      <div className="calendar-toolbar-container">
         <div style={{ display: 'flex', gap: '10px' }}>
           <button 
             onClick={goToBack}
