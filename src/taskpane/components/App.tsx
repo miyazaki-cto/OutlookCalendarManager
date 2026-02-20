@@ -9,6 +9,7 @@ import { getUserColor, clearUserColors } from '../../utils/userColors';
 import { EventFormModal } from "./EventFormModal";
 import { SettingsModal } from "./SettingsModal";
 import { ListView } from "./ListView";
+import { CommonFreeTimeModal } from "./CommonFreeTimeModal";
 import "./App.css";
 
 export interface AppProps {
@@ -71,6 +72,7 @@ const App: React.FC<AppProps> = ({ title }) => {
   });
 
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+  const [isCommonFreeTimeModalOpen, setIsCommonFreeTimeModalOpen] = React.useState(false);
   const [isGroupExpanded, setIsGroupExpanded] = React.useState<boolean>(() => {
     const saved = localStorage.getItem('calendar_isGroupExpanded');
     return saved !== null ? saved === 'true' : true;
@@ -349,6 +351,7 @@ const App: React.FC<AppProps> = ({ title }) => {
         </div>
 
         <div className="header-actions">
+          <button onClick={() => setIsCommonFreeTimeModalOpen(true)} className="btn-common-free-time" title="共通の空き時間を検索">🔍 空き時間</button>
           <button onClick={() => loadEvents(Object.keys(selectedMembers))} disabled={loading} className="btn-refresh" title="更新">🔄</button>
           <button onClick={() => setIsSettingsOpen(true)} className="btn-settings" title="設定">⚙️</button>
         </div>
@@ -516,6 +519,23 @@ const App: React.FC<AppProps> = ({ title }) => {
           isNoLimit={isNoLimit}
           onSave={handleSaveSettings}
           onClose={() => setIsSettingsOpen(false)}
+        />
+      )}
+
+      {isCommonFreeTimeModalOpen && (
+        <CommonFreeTimeModal
+          isOpen={isCommonFreeTimeModalOpen}
+          onClose={() => setIsCommonFreeTimeModalOpen(false)}
+          events={events}
+          selectedMemberEmails={Object.keys(selectedMembers).filter(email => selectedMembers[email])}
+          members={getAvailableMembers()}
+          onSelectSlot={(slot) => {
+            setIsCommonFreeTimeModalOpen(false);
+            setEventFormMode('create');
+            setEventFormInitialStart(slot.start);
+            setEventFormInitialEnd(slot.end);
+            setEventFormInitialAttendees(Object.keys(selectedMembers).filter(email => selectedMembers[email]));
+          }}
         />
       )}
     </div>
