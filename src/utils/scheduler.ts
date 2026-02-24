@@ -6,6 +6,7 @@ export interface SchedulerOptions {
   workHourStart: number; // e.g., 9
   workHourEnd: number;   // e.g., 18
   excludeWeekends: boolean;
+  excludeLongEvents?: boolean; // If true, events >= 4 hours are ignored
 }
 
 export interface TimeSlot {
@@ -33,11 +34,22 @@ export const findCommonFreeTime = (
   if (memberEmails.length === 0) return [];
 
   // Filter events relevant to the selected members and time range
-  const relevantEvents = events.filter(event => 
-    memberEmails.includes(event.ownerEmail || '') &&
-    new Date(event.end.dateTime) > searchStart &&
-    new Date(event.start.dateTime) < searchEnd
-  );
+  const relevantEvents = events.filter(event => {
+    const isTargetMember = memberEmails.includes(event.ownerEmail || '');
+    const isInRange = new Date(event.end.dateTime) > searchStart && new Date(event.start.dateTime) < searchEnd;
+    
+    if (!isTargetMember || !isInRange) return false;
+
+    // Optional: Exclude events longer than 4 hours (240 minutes)
+    if (options.excludeLongEvents) {
+        const start = new Date(event.start.dateTime).getTime();
+        const end = new Date(event.end.dateTime).getTime();
+        const durationMinutes = (end - start) / (1000 * 60);
+        if (durationMinutes >= 240) return false; // Ignore if >= 4 hours
+    }
+
+    return true;
+  });
 
   // Create a combined "busy" timeline
   const busySlots: TimeSlot[] = relevantEvents.map(e => ({

@@ -35,6 +35,7 @@ export const CommonFreeTimeModal: React.FC<CommonFreeTimeModalProps> = ({
   const [excludeWeekends, setExcludeWeekends] = React.useState(true);
   const [results, setResults] = React.useState<TimeSlot[]>([]);
   const [searched, setSearched] = React.useState(false);
+  const [excludeLongEvents, setExcludeLongEvents] = React.useState(false);
   const [expandedDays, setExpandedDays] = React.useState<string[]>([]);
 
   if (!isOpen) return null;
@@ -54,7 +55,8 @@ export const CommonFreeTimeModal: React.FC<CommonFreeTimeModalProps> = ({
         durationMinutes: duration,
         workHourStart,
         workHourEnd,
-        excludeWeekends
+        excludeWeekends,
+        excludeLongEvents
       }
     );
     setResults(foundSlots);
@@ -200,6 +202,17 @@ export const CommonFreeTimeModal: React.FC<CommonFreeTimeModalProps> = ({
                                 className="checkbox-input-mr"
                             />
                             土日を除く
+                        </label>
+                    </div>
+                    <div className="form-field checkbox-field">
+                        <label className="checkbox-label no-margin" title="4時間以上の予定は調整可能とみなし、空き時間として扱います">
+                            <input 
+                                type="checkbox" 
+                                checked={excludeLongEvents} 
+                                onChange={e => setExcludeLongEvents(e.target.checked)} 
+                                className="checkbox-input-mr"
+                            />
+                            4時間以上の予定を除く
                         </label>
                     </div>
                     <div className="spacer"></div>

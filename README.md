@@ -3,104 +3,144 @@
 Outlook カレンダーを効率的に閲覧・管理するための、React ベースの Outlook アドインです。
 特にチームメンバーの空き状況確認（タイムライン表示）や、複数人の予定を一括管理することに特化しています。
 
-## 概要
+## ⚙️ 開発環境のセットアップ (Windows)
 
-このアドインは、Microsoft Graph API を使用してユーザーのカレンダーデータを取得し、視覚的なインターフェースを提供します。
-ブラウザ（Outlook Web）およびデスクトップ版 Outlook の両方で動作し、IE11 互換も考慮されています。
+このプロジェクトは Windows 環境での開発をベースとしています。以下の手順で開発環境をゼロから構築できます。
 
-## 技術スタック
+### 1. 前提条件のインストール
 
-- **Core**: React 18, TypeScript
-- **UI Framework**: Fluent UI React Components (@fluentui/react-components)
-- **Calendar Library**: React Big Calendar
-- **API**: Microsoft Graph API (@microsoft/microsoft-graph-client)
-- **Build Tool**: Webpack, Babel
-- **Office Add-in Tooling**: Office.js, office-addin-debugging
+以下のツールがインストールされていることを確認してください。
 
-## 主な機能
+- **Node.js**: v18以上 (LTS推奨)
+- **Git**: リポジトリのクローン用
+- **Visual Studio Code**: 推奨エディタ
+  - 拡張機能 `Debugger for Edge` (または最新の内置デバッガ) が必要です。
 
-### 1. 複数の表示モード
+### 2. リポジトリのクローンと依存関係のインストール
 
-- **カレンダー表示**: 標準的な月/週単位のカレンダー表示。時刻は 24 時間制（HH:mm）で統一されています。
-- **週ライン表示**: チームメンバーの 1 週間の予定を横並びで表示し、空き時間を視覚的に把握可能。
-- **日ライン表示**: 当日のチームメンバーの予定を詳細に表示。8時以前の予定（終日予定含む）も 8:00 のセルにタイトルが表示され、視認性が確保されています。
-- **リスト表示**: 選択日の予定をリスト形式で表示。予定タイトルの前に担当者名 `[名前]` が自動付与されます。
-- **共通の日付移動機能**: 「日ライン」「リスト」表示では、前日・今日・翌日への切り替えやカレンダーからの日付選択が可能です。
-
-### 2. 高度なフィルタリング
-
-- **バッチ適用機能**: メンバー選択時は一時的な状態（チェックのみ）として保持され、「適用」ボタンを押すことで一括してデータ取得を開始します。
-- **選択数の可視化**: フィルターヘッダーに現在の選択数 `(N)` が表示され、折りたたんだ状態でも選択状況が把握できます。
-- **グループ/メンバー選択**: チーム（グループ）単位や、個別のメンバーを組み合わせて表示。
-- **個別折り畳みセクション**: グループとメンバーごとに折り畳みが可能。
-- **状態の永続化**: フィルターの選択状態、セクションの開閉状態は `localStorage` に保存されます。
-
-### 3. イベント管理
-
-- **作成・編集・削除**: カレンダーやタイムラインの空き時間をクリックして予定を作成。
-- **自動参加者追加**: イベント作成時、ログインユーザーが自動的に出席者として追加されます。
-
-### 4. UI/UX の最適化
-
-- **取得範囲の設定**: 過去・未来の予定取得期間（ヶ月単位）をモーダルで管理。
-- **レスポンシブデザイン**: モバイルからデスクトップまで最適なレイアウトを提供。
-
-## プロジェクト構成
-
-```
-OutlookCalendarManager/
-├── src/
-│   ├── taskpane/           # アドインのメインUI
-│   │   ├── components/     # Reactコンポーネント (App, CalendarView, MemberTimelineView等)
-│   │   └── index.tsx       # エントリーポイント
-│   ├── services/           # Graph API 等の通信ロジック
-│   ├── config/             # グループ・メンバーのマスターデータ (groupConfig.ts)
-│   ├── types/              # TypeScriptの型定義
-│   └── utils/              # 共通ユーティリティ (カラー管理等)
-├── manifest.xml            # Officeアドインの構成ファイル
-└── package.json            # 依存関係とスクリプト
-```
-
-## 開発環境のセットアップ
-
-### 1. 依存関係のインストール
-
-```bash
+```powershell
+git clone <repository-url>
+cd OutlookCalendarManager
 npm install
 ```
 
-### 2. 開発用証明書のインストール（初回のみ）
+### 3. 開発用証明書のインストール（初回のみ）
 
-```bash
+Office アドインは HTTPS で動作する必要があるため、ローカル用の信頼された証明書をインストールします。
+
+```powershell
 npx office-addin-dev-certs install
 ```
 
-### 3. 開発サーバーの起動
+### 4. Edge WebView のループバック許可（初回のみ）
 
-```bash
-npm start
+Windows のセキュリティ設定により、Edge WebView から localhost への接続が制限されている場合があります。以下の手順で許可します。
+
+1. ターミナルで `npm run dev-server` を起動。
+2. 別ターミナルで `npm run start` を実行。
+3. プロンプトが表示されたら **「Y」** と入力して Enter。
+   `? Allow localhost loopback for Microsoft Edge WebView? (Y/n)`
+
+---
+
+## 🐳 Docker での開発 (オプション)
+
+ホスト環境を最小限に抑えたい場合は、Docker を利用して開発サーバーを起動できます。
+
+### 1. 初回準備
+
+ホスト側で一度だけ開発用証明書をインストールしておく必要があります（コンテナ内でこの証明書を参照します）。
+
+```powershell
+npx office-addin-dev-certs install
 ```
 
-※ `npm start` は現在、Outlook の自動起動を行わない設定 (`--no-sideload`) になっています。サーバー起動後、手動で Outlook を開いてアドインを読み込んでください。
+### 2. コンテナの起動
 
-## カスタマイズ方法
+```powershell
+docker-compose up
+```
 
-### メンバー・グループの変更
+これにより：
 
-`src/config/groupConfig.ts` を編集することで、表示対象のグループやメンバーのリストを更新できます。
+- `https://localhost:3000` で開発サーバーが起動します。
+- ホスト側の証明書がコンテナに同期され、HTTPS 通信が正しく動作します。
+- ソースコードの変更は自動的に検知・反映されます。
 
-### 取得期間のデフォルト値
+---
 
-`src/taskpane/components/App.tsx` の初期状態（`pastMonths`, `futureMonths` 等）を変更することで、初期ロード時の期間を変更できます。
+## 🚀 開発ワークフロー
 
-## デバッグ方法
+### 開発サーバーの起動
 
-詳細なデバッグ手順については、以下のドキュメントを参照してください：
+```powershell
+npm run dev-server
+```
 
-- [DEBUGGING.md](./DEBUGGING.md): 基本的なデバッグ手順
-- [SETUP_DEBUG.md](./SETUP_DEBUG.md): 初期設定手順
+`https://localhost:3000` でサーバーが待機します。
 
-## 注意事項
+### アドインの確認 (Sideloading)
 
-- **IE11 対応**: `App.css` にて `-ms-flex` などのプレフィックスを使用しています。レイアウト変更時は IE11 での崩れに注意してください。
-- **Graph API アクセス許可**: `manifest.xml` および Azure App Registration にて、カレンダーの読み書き権限 (`Calendars.ReadWrite`) が必要です。
+現在は自動サイドロードをオフに設定しています (`--no-sideload`)。
+
+1. `npm run dev-server` を実行。
+2. Outlook (Desktop または Web) を起動。
+3. 予定作成画面などで「アドイン」メニューから読み込んでください。
+
+---
+
+## 🛠️ デバッグ方法 (VS Code)
+
+`.vscode/launch.json` が設定されており、F5 キーでデバッグを開始できます。
+
+- **Outlook Desktop (Classic)**:
+  - 構成から `Outlook Desktop (Edge Chromium) にアタッチ` を選択して **F5**。
+- **新しい Outlook (New Outlook)**:
+  - [DEBUG_NEW_OUTLOOK.md](./DEBUG_NEW_OUTLOOK.md) を参照。
+- **ブラウザのみ**:
+  - 構成から `Edge: Taskpane のみ` を選択して **F5**。
+
+> [!TIP]
+> ブレークポイントが効かない場合は、VS Code で `OutlookCalendarManager` フォルダをルートとして開いているか確認してください。
+
+---
+
+## 🔐 Azure App Registration (Graph API)
+
+このアドインは Microsoft Graph API を使用します。組織の Azure ポータルで以下の設定が必要です。
+
+- **アプリケーションの種類**: シングルページ アプリケーション (SPA)
+- **リダイレクト URI**: `https://localhost:3000/taskpane.html`
+- **必要なアクセス許可 (API Permissions)**:
+  - `Calendars.ReadWrite` (予定の取得・作成)
+  - `User.Read` (ユーザー情報の取得)
+  - `MailboxSettings.Read` (タイムゾーン等の取得)
+
+---
+
+## 📂 プロジェクト構成
+
+```text
+OutlookCalendarManager/
+├── src/
+│   ├── taskpane/           # アドインのメインUI (React)
+│   ├── services/           # Graph API 等の通信ロジック (graphService.ts)
+│   ├── config/             # 👥 メンバー・グループ設定 (groupConfig.ts)
+│   └── utils/              # 共通ユーティリティ
+├── manifest.xml            # クラシック Outlook 用マニフェスト
+├── manifest.json           # 新しい Outlook / Teams モダナイズ用
+└── webpack.config.js       # ビルド設定
+```
+
+### 👥 構成のカスタマイズ
+
+表示するチームメンバーやグループは [src/config/groupConfig.ts](./src/config/groupConfig.ts) で管理しています。新メンバーの追加や会議室の変更時はこのファイルを編集してください。
+
+---
+
+## 📖 参考ドキュメント
+
+- [MAINTENANCE.md](./MAINTENANCE.md): 挙動のチューニング・メンテナンスガイド
+- [DEBUGGING.md](./DEBUGGING.md): 詳細なデバッグ手順
+- [DEBUG_NEW_OUTLOOK.md](./DEBUG_NEW_OUTLOOK.md): 新しい Outlook でのデバッグ
+- [SETUP_DEBUG.md](./SETUP_DEBUG.md): 初回セットアップの補足
