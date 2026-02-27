@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app:delegated
+      - /usr/src/app/node_modules
+      # Mount the local Office Add-in certificates to allow HTTPS to work inside Docker
+      - ${USERPROFILE}/.office-addin-dev-certs:/home/node/.office-addin-dev-certs:ro
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
